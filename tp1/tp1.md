@@ -19,13 +19,13 @@ Assurez-vous d'avoir activé votre compte GCP en suivant le **GUIDE_ACTIVATION_C
 ### Livrables attendus
 
 - [x] Capture d'écran de votre console GCP (projet créé)
-![alt text](image-1.png)
+![alt text](/tp1/assets/image-1.png)
 - [x] Capture d'écran du terminal : résultat de `gcloud config list`
-![alt text](image.png)
+![alt text](/tp1/assets/image.png)
 - [x] Capture d'écran : bucket GCS créé et listé
-![alt text](image-2.png)
+![alt text](/tp1/assets/image-2.png)
 - [x] Capture d'écran : réponse de votre application Flask en local (`docker run`)
-![alt text](image-3.png)
+![alt text](/tp1/assets/image-3.png)
 - [x] Réponses aux questions théoriques (dans ce fichier ou sur papier)
 
 ---
