@@ -14,14 +14,33 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD || 'password',
 });
 
-const redisClient = createClient({
-  socket: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379', 10),
-  },
-});
+const redisHost = process.env.REDIS_HOST;
 
-redisClient.connect().catch(console.error);
+let redisClient: any = null;
+
+/* if (redisHost && redisHost.length > 0) {
+  redisClient = createClient({
+    socket: {
+      host: redisHost,
+      port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    },
+  });
+
+  redisClient.connect().catch(console.error);
+} */
+
+  if (redisHost && redisHost.trim() !== "") {
+  redisClient = createClient({
+    socket: {
+      host: redisHost,
+      port: Number(process.env.REDIS_PORT || 6379),
+    },
+  });
+
+  redisClient.connect().catch(console.error);
+} else {
+  console.log("Redis disabled (no REDIS_HOST)");
+}
 
 app.get('/', (req: Request, res: Response) => {
   res.json({
@@ -72,35 +91,43 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server listening on: ${PORT}`);
 });
 
-app.get('/cached', async (req: Request, res: Response) => {
-  const CACHE_KEY = 'visit_count_cached';
-  const TTL_SECONDS = 10;
+// app.get('/cached', async (req: Request, res: Response) => {
+//   const CACHE_KEY = 'visit_count_cached';
+//   const TTL_SECONDS = 10;
 
-  try {
-    // Lire depuis le cache Redis
-    const cached = await redisClient.get(CACHE_KEY);
+//   try {
+//     // Lire depuis le cache Redis
+// if (!redisClient) {
+//       const result = await pool.query('SELECT COUNT(*) as total FROM visits');
+//       return res.json({
+//         total_visits: parseInt(result.rows[0].total, 10),
+//         source: "database-only",
+//       });
+//     }
 
-    if (cached !== null) {
-      return res.json({
-        total_visits: parseInt(cached, 10),
-        source: "cache",
-        ttl_remaining: await redisClient.ttl(CACHE_KEY),
-      });
-    }
+//     const cached = await redisClient.get(CACHE_KEY);
 
-    // Cache miss : lire depuis PostgreSQL
-    const result = await pool.query('SELECT COUNT(*) as total FROM visits');
-    const count = parseInt(result.rows[0].total, 10);
+//     if (cached !== null) {
+//       return res.json({
+//         total_visits: parseInt(cached, 10),
+//         source: "cache",
+//         ttl_remaining: await redisClient.ttl(CACHE_KEY),
+//       });
+//     }
 
-    // Stocker dans Redis avec TTL de 10 secondes
-    await redisClient.setEx(CACHE_KEY, TTL_SECONDS, String(count));
+//     // Cache miss : lire depuis PostgreSQL
+//     const result = await pool.query('SELECT COUNT(*) as total FROM visits');
+//     const count = parseInt(result.rows[0].total, 10);
 
-    return res.json({
-      total_visits: count,
-      source: "database",
-    });
+//     // Stocker dans Redis avec TTL de 10 secondes
+//     await redisClient.setEx(CACHE_KEY, TTL_SECONDS, String(count));
 
-  } catch (err) {
-    return res.status(500).json({ error: String(err) });
-  }
-});
+//     return res.json({
+//       total_visits: count,
+//       source: "database",
+//     });
+
+//   } catch (err) {
+//     return res.status(500).json({ error: String(err) });
+//   }
+// });
