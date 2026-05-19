@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logistream-config
+  namespace: logistream
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "info"
+  KAFKA_BOOTSTRAP_SERVERS: "logistream-kafka-kafka-bootstrap.logistream.svc.cluster.local:9092"
+  KAFKA_TOPIC_POSITIONS: "truck-positions"
+  # TODO : ajouter MAX_TRUCKS avec la valeur "1000"
+  MAX_TRUCKS: "1000"
